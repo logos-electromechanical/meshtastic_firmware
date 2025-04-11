@@ -12,6 +12,9 @@
 #endif
 #include "input/kbMatrixImpl.h"
 #endif
+#if !MESHTASTIC_EXCLUDE_MAVLINK
+#include "modules/MAVLinkModule.h"
+#endif 
 #if !MESHTASTIC_EXCLUDE_ADMIN
 #include "modules/AdminModule.h"
 #endif
@@ -100,6 +103,9 @@ void setupModules()
     if (config.device.role != meshtastic_Config_DeviceConfig_Role_REPEATER) {
 #if (HAS_BUTTON || ARCH_PORTDUINO) && !MESHTASTIC_EXCLUDE_INPUTBROKER
         inputBroker = new InputBroker();
+#endif
+#if !MESHTASTIC_EXCLUDE_MAVLINK
+        mavlinkModule = new MAVLinkModule();
 #endif
 #if !MESHTASTIC_EXCLUDE_ADMIN
         adminModule = new AdminModule();
