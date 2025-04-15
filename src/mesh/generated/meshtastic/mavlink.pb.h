@@ -10,31 +10,29 @@
 #endif
 
 /* Struct definitions */
-typedef PB_BYTES_ARRAY_T(13) meshtastic_MavlinkPacket_signature_t;
 typedef PB_BYTES_ARRAY_T(160) meshtastic_MavlinkPacket_payload_t;
+typedef PB_BYTES_ARRAY_T(13) meshtastic_MavlinkPacket_signature_t;
 typedef struct _meshtastic_MavlinkPacket {
     /* Length of the MAVLink payload */
     uint8_t length;
-    /* Header compatibility flags 
- Lowest byte is incompat flags 
- Next to lowest byte is compat flags */
-    uint16_t compat_flags;
+    /* (In)Compatibility flags */
+    uint8_t incompat_flags;
+    uint8_t compat_flags;
     /* Message sequence number */
     uint8_t seq_number;
-    /* Sender ID
- Lowest byte is the sender System ID
- Next to lowest byte is the sender Component ID */
-    uint16_t sender_id;
+    /* Sender IDs */
+    uint8_t system_id;
+    uint8_t component_id;
     /* Message ID */
     uint32_t msg_id;
     /* Checksum */
     uint16_t checksum;
-    /* Signature */
-    bool has_signature;
-    meshtastic_MavlinkPacket_signature_t signature;
     /* Payload */
     bool has_payload;
     meshtastic_MavlinkPacket_payload_t payload;
+    /* Signature */
+    bool has_signature;
+    meshtastic_MavlinkPacket_signature_t signature;
 } meshtastic_MavlinkPacket;
 
 typedef PB_BYTES_ARRAY_T(95) meshtastic_MavlinkExtendedPacket_payload_t;
@@ -43,10 +41,9 @@ typedef struct _meshtastic_MavlinkExtendedPacket {
     uint8_t length;
     /* Message sequence number */
     uint8_t seq_number;
-    /* Sender ID
- Lowest byte is the sender System ID
- Next to lowest byte is the sender Component ID */
-    uint16_t sender_id;
+    /* Sender IDs */
+    uint32_t system_id;
+    uint32_t component_id;
     /* Message ID */
     uint32_t msg_id;
     /* Payload */
@@ -59,45 +56,51 @@ extern "C" {
 #endif
 
 /* Initializer values for message structs */
-#define meshtastic_MavlinkPacket_init_default    {0, 0, 0, 0, 0, 0, false, {0, {0}}, false, {0, {0}}}
-#define meshtastic_MavlinkExtendedPacket_init_default {0, 0, 0, 0, {0, {0}}}
-#define meshtastic_MavlinkPacket_init_zero       {0, 0, 0, 0, 0, 0, false, {0, {0}}, false, {0, {0}}}
-#define meshtastic_MavlinkExtendedPacket_init_zero {0, 0, 0, 0, {0, {0}}}
+#define meshtastic_MavlinkPacket_init_default    {0, 0, 0, 0, 0, 0, 0, 0, false, {0, {0}}, false, {0, {0}}}
+#define meshtastic_MavlinkExtendedPacket_init_default {0, 0, 0, 0, 0, {0, {0}}}
+#define meshtastic_MavlinkPacket_init_zero       {0, 0, 0, 0, 0, 0, 0, 0, false, {0, {0}}, false, {0, {0}}}
+#define meshtastic_MavlinkExtendedPacket_init_zero {0, 0, 0, 0, 0, {0, {0}}}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define meshtastic_MavlinkPacket_length_tag      1
-#define meshtastic_MavlinkPacket_compat_flags_tag 2
-#define meshtastic_MavlinkPacket_seq_number_tag  3
-#define meshtastic_MavlinkPacket_sender_id_tag   4
-#define meshtastic_MavlinkPacket_msg_id_tag      5
-#define meshtastic_MavlinkPacket_checksum_tag    6
-#define meshtastic_MavlinkPacket_signature_tag   7
-#define meshtastic_MavlinkPacket_payload_tag     8
+#define meshtastic_MavlinkPacket_incompat_flags_tag 2
+#define meshtastic_MavlinkPacket_compat_flags_tag 3
+#define meshtastic_MavlinkPacket_seq_number_tag  4
+#define meshtastic_MavlinkPacket_system_id_tag   5
+#define meshtastic_MavlinkPacket_component_id_tag 6
+#define meshtastic_MavlinkPacket_msg_id_tag      7
+#define meshtastic_MavlinkPacket_checksum_tag    8
+#define meshtastic_MavlinkPacket_payload_tag     9
+#define meshtastic_MavlinkPacket_signature_tag   10
 #define meshtastic_MavlinkExtendedPacket_length_tag 1
 #define meshtastic_MavlinkExtendedPacket_seq_number_tag 2
-#define meshtastic_MavlinkExtendedPacket_sender_id_tag 3
-#define meshtastic_MavlinkExtendedPacket_msg_id_tag 4
-#define meshtastic_MavlinkExtendedPacket_payload_tag 5
+#define meshtastic_MavlinkExtendedPacket_system_id_tag 3
+#define meshtastic_MavlinkExtendedPacket_component_id_tag 4
+#define meshtastic_MavlinkExtendedPacket_msg_id_tag 5
+#define meshtastic_MavlinkExtendedPacket_payload_tag 6
 
 /* Struct field encoding specification for nanopb */
 #define meshtastic_MavlinkPacket_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   length,            1) \
-X(a, STATIC,   SINGULAR, UINT32,   compat_flags,      2) \
-X(a, STATIC,   SINGULAR, UINT32,   seq_number,        3) \
-X(a, STATIC,   SINGULAR, UINT32,   sender_id,         4) \
-X(a, STATIC,   SINGULAR, UINT32,   msg_id,            5) \
-X(a, STATIC,   SINGULAR, UINT32,   checksum,          6) \
-X(a, STATIC,   OPTIONAL, BYTES,    signature,         7) \
-X(a, STATIC,   OPTIONAL, BYTES,    payload,           8)
+X(a, STATIC,   SINGULAR, UINT32,   incompat_flags,    2) \
+X(a, STATIC,   SINGULAR, UINT32,   compat_flags,      3) \
+X(a, STATIC,   SINGULAR, UINT32,   seq_number,        4) \
+X(a, STATIC,   SINGULAR, UINT32,   system_id,         5) \
+X(a, STATIC,   SINGULAR, UINT32,   component_id,      6) \
+X(a, STATIC,   SINGULAR, UINT32,   msg_id,            7) \
+X(a, STATIC,   SINGULAR, UINT32,   checksum,          8) \
+X(a, STATIC,   OPTIONAL, BYTES,    payload,           9) \
+X(a, STATIC,   OPTIONAL, BYTES,    signature,        10)
 #define meshtastic_MavlinkPacket_CALLBACK NULL
 #define meshtastic_MavlinkPacket_DEFAULT NULL
 
 #define meshtastic_MavlinkExtendedPacket_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   length,            1) \
 X(a, STATIC,   SINGULAR, UINT32,   seq_number,        2) \
-X(a, STATIC,   SINGULAR, UINT32,   sender_id,         3) \
-X(a, STATIC,   SINGULAR, UINT32,   msg_id,            4) \
-X(a, STATIC,   SINGULAR, BYTES,    payload,           5)
+X(a, STATIC,   SINGULAR, UINT32,   system_id,         3) \
+X(a, STATIC,   SINGULAR, UINT32,   component_id,      4) \
+X(a, STATIC,   SINGULAR, UINT32,   msg_id,            5) \
+X(a, STATIC,   SINGULAR, BYTES,    payload,           6)
 #define meshtastic_MavlinkExtendedPacket_CALLBACK NULL
 #define meshtastic_MavlinkExtendedPacket_DEFAULT NULL
 
@@ -110,8 +113,8 @@ extern const pb_msgdesc_t meshtastic_MavlinkExtendedPacket_msg;
 
 /* Maximum encoded size of messages (where known) */
 #define MESHTASTIC_MESHTASTIC_MAVLINK_PB_H_MAX_SIZE meshtastic_MavlinkPacket_size
-#define meshtastic_MavlinkExtendedPacket_size    113
-#define meshtastic_MavlinkPacket_size            202
+#define meshtastic_MavlinkExtendedPacket_size    121
+#define meshtastic_MavlinkPacket_size            206
 
 #ifdef __cplusplus
 } /* extern "C" */
