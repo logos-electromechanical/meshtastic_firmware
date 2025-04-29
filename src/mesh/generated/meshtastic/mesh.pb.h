@@ -1763,16 +1763,18 @@ extern const pb_msgdesc_t meshtastic_ChunkedPayloadResponse_msg;
 #define meshtastic_ChunkedPayloadResponse_fields &meshtastic_ChunkedPayloadResponse_msg
 
 /* Maximum encoded size of messages (where known) */
+#if defined(meshtastic_ModuleConfig_size)
+union meshtastic_FromRadio_payload_variant_size_union {char f9[(6 + meshtastic_ModuleConfig_size)]; char f0[504];};
+#endif
 /* meshtastic_resend_chunks_size depends on runtime parameters */
 /* meshtastic_ChunkedPayloadResponse_size depends on runtime parameters */
-#define MESHTASTIC_MESHTASTIC_MESH_PB_H_MAX_SIZE meshtastic_FromRadio_size
+#define MESHTASTIC_MESHTASTIC_MESH_PB_H_MAX_SIZE meshtastic_ToRadio_size
 #define meshtastic_ChunkedPayload_size           245
 #define meshtastic_ClientNotification_size       415
 #define meshtastic_Compressed_size               239
 #define meshtastic_Data_size                     269
 #define meshtastic_DeviceMetadata_size           54
 #define meshtastic_FileInfo_size                 236
-#define meshtastic_FromRadio_size                510
 #define meshtastic_Heartbeat_size                0
 #define meshtastic_LogRecord_size                426
 #define meshtastic_MeshPacket_size               378
@@ -1789,6 +1791,9 @@ extern const pb_msgdesc_t meshtastic_ChunkedPayloadResponse_msg;
 #define meshtastic_ToRadio_size                  504
 #define meshtastic_User_size                     113
 #define meshtastic_Waypoint_size                 165
+#if defined(meshtastic_ModuleConfig_size)
+#define meshtastic_FromRadio_size                (6 + sizeof(union meshtastic_FromRadio_payload_variant_size_union))
+#endif
 
 #ifdef __cplusplus
 } /* extern "C" */

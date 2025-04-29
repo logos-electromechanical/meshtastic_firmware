@@ -79,10 +79,28 @@ typedef enum _meshtastic_ModuleConfig_SerialConfig_Serial_Mode {
     /* NMEA messages specifically tailored for CalTopo */
     meshtastic_ModuleConfig_SerialConfig_Serial_Mode_CALTOPO = 5,
     /* Ecowitt WS85 weather station */
-    meshtastic_ModuleConfig_SerialConfig_Serial_Mode_WS85 = 6,
-    /* MAVLink mode */
-    meshtastic_ModuleConfig_SerialConfig_Serial_Mode_MAVLINK = 7
+    meshtastic_ModuleConfig_SerialConfig_Serial_Mode_WS85 = 6
 } meshtastic_ModuleConfig_SerialConfig_Serial_Mode;
+
+/* TODO: REPLACE */
+typedef enum _meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud {
+    meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_BAUD_DEFAULT = 0,
+    meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_BAUD_110 = 1,
+    meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_BAUD_300 = 2,
+    meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_BAUD_600 = 3,
+    meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_BAUD_1200 = 4,
+    meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_BAUD_2400 = 5,
+    meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_BAUD_4800 = 6,
+    meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_BAUD_9600 = 7,
+    meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_BAUD_19200 = 8,
+    meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_BAUD_38400 = 9,
+    meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_BAUD_57600 = 10,
+    meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_BAUD_115200 = 11,
+    meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_BAUD_230400 = 12,
+    meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_BAUD_460800 = 13,
+    meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_BAUD_576000 = 14,
+    meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_BAUD_921600 = 15
+} meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud;
 
 /* TODO: REPLACE */
 typedef enum _meshtastic_ModuleConfig_CannedMessageConfig_InputEventChar {
@@ -240,6 +258,40 @@ typedef struct _meshtastic_ModuleConfig_SerialConfig {
  Existing logging over the Serial Console will still be present */
     bool override_console_serial_port;
 } meshtastic_ModuleConfig_SerialConfig;
+
+/* MAVLink Config */
+typedef struct _meshtastic_ModuleConfig_MAVLinkConfig {
+    /* Preferences for the MAVLink Mocdule */
+    bool enabled;
+    /* RX pin (should match Arduino gpio pin number) */
+    uint32_t rxd;
+    /* TX pin (should match Arduino gpio pin number) */
+    uint32_t txd;
+    /* Serial baud rate */
+    meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud baud;
+    /* TODO: REPLACE */
+    uint32_t timeout;
+    /* Overrides the platform's defacto Serial port instance to use with Serial module config settings
+ This is currently only usable in output modes like NMEA / CalTopo and may behave strangely or not work at all in other modes
+ Existing logging over the Serial Console will still be present */
+    bool override_console_serial_port;
+    /* This is the allow list of message ids; message ids on this list will be relayed 
+ A value of -1 is a wildcard for all messages */
+    pb_callback_t allow_list;
+    pb_callback_t block_list;
+    pb_callback_t throttle_list;
+} meshtastic_ModuleConfig_MAVLinkConfig;
+
+typedef struct _meshtastic_ModuleConfig_MAVLinkConfig_MAVLink_Throttle {
+    uint32_t message_id;
+    pb_size_t which_throttle;
+    union {
+        /* transmit every n messages */
+        uint32_t every;
+        /* transmit ever n milliseconds */
+        uint32_t millis;
+    } throttle;
+} meshtastic_ModuleConfig_MAVLinkConfig_MAVLink_Throttle;
 
 /* External Notifications Config */
 typedef struct _meshtastic_ModuleConfig_ExternalNotificationConfig {
@@ -443,6 +495,7 @@ typedef struct _meshtastic_ModuleConfig {
         meshtastic_ModuleConfig_DetectionSensorConfig detection_sensor;
         /* TODO: REPLACE */
         meshtastic_ModuleConfig_PaxcounterConfig paxcounter;
+        meshtastic_ModuleConfig_MAVLinkConfig mav_config;
     } payload_variant;
 } meshtastic_ModuleConfig;
 
@@ -469,8 +522,12 @@ extern "C" {
 #define _meshtastic_ModuleConfig_SerialConfig_Serial_Baud_ARRAYSIZE ((meshtastic_ModuleConfig_SerialConfig_Serial_Baud)(meshtastic_ModuleConfig_SerialConfig_Serial_Baud_BAUD_921600+1))
 
 #define _meshtastic_ModuleConfig_SerialConfig_Serial_Mode_MIN meshtastic_ModuleConfig_SerialConfig_Serial_Mode_DEFAULT
-#define _meshtastic_ModuleConfig_SerialConfig_Serial_Mode_MAX meshtastic_ModuleConfig_SerialConfig_Serial_Mode_MAVLINK
-#define _meshtastic_ModuleConfig_SerialConfig_Serial_Mode_ARRAYSIZE ((meshtastic_ModuleConfig_SerialConfig_Serial_Mode)(meshtastic_ModuleConfig_SerialConfig_Serial_Mode_MAVLINK+1))
+#define _meshtastic_ModuleConfig_SerialConfig_Serial_Mode_MAX meshtastic_ModuleConfig_SerialConfig_Serial_Mode_WS85
+#define _meshtastic_ModuleConfig_SerialConfig_Serial_Mode_ARRAYSIZE ((meshtastic_ModuleConfig_SerialConfig_Serial_Mode)(meshtastic_ModuleConfig_SerialConfig_Serial_Mode_WS85+1))
+
+#define _meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_MIN meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_BAUD_DEFAULT
+#define _meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_MAX meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_BAUD_921600
+#define _meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_ARRAYSIZE ((meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud)(meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_BAUD_921600+1))
 
 #define _meshtastic_ModuleConfig_CannedMessageConfig_InputEventChar_MIN meshtastic_ModuleConfig_CannedMessageConfig_InputEventChar_NONE
 #define _meshtastic_ModuleConfig_CannedMessageConfig_InputEventChar_MAX meshtastic_ModuleConfig_CannedMessageConfig_InputEventChar_BACK
@@ -488,6 +545,9 @@ extern "C" {
 
 #define meshtastic_ModuleConfig_SerialConfig_baud_ENUMTYPE meshtastic_ModuleConfig_SerialConfig_Serial_Baud
 #define meshtastic_ModuleConfig_SerialConfig_mode_ENUMTYPE meshtastic_ModuleConfig_SerialConfig_Serial_Mode
+
+#define meshtastic_ModuleConfig_MAVLinkConfig_baud_ENUMTYPE meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud
+
 
 
 
@@ -511,6 +571,8 @@ extern "C" {
 #define meshtastic_ModuleConfig_AudioConfig_init_default {0, 0, _meshtastic_ModuleConfig_AudioConfig_Audio_Baud_MIN, 0, 0, 0, 0}
 #define meshtastic_ModuleConfig_PaxcounterConfig_init_default {0, 0, 0, 0}
 #define meshtastic_ModuleConfig_SerialConfig_init_default {0, 0, 0, 0, _meshtastic_ModuleConfig_SerialConfig_Serial_Baud_MIN, 0, _meshtastic_ModuleConfig_SerialConfig_Serial_Mode_MIN, 0}
+#define meshtastic_ModuleConfig_MAVLinkConfig_init_default {0, 0, 0, _meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_MIN, 0, 0, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}}
+#define meshtastic_ModuleConfig_MAVLinkConfig_MAVLink_Throttle_init_default {0, 0, {0}}
 #define meshtastic_ModuleConfig_ExternalNotificationConfig_init_default {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 #define meshtastic_ModuleConfig_StoreForwardConfig_init_default {0, 0, 0, 0, 0, 0}
 #define meshtastic_ModuleConfig_RangeTestConfig_init_default {0, 0, 0}
@@ -527,6 +589,8 @@ extern "C" {
 #define meshtastic_ModuleConfig_AudioConfig_init_zero {0, 0, _meshtastic_ModuleConfig_AudioConfig_Audio_Baud_MIN, 0, 0, 0, 0}
 #define meshtastic_ModuleConfig_PaxcounterConfig_init_zero {0, 0, 0, 0}
 #define meshtastic_ModuleConfig_SerialConfig_init_zero {0, 0, 0, 0, _meshtastic_ModuleConfig_SerialConfig_Serial_Baud_MIN, 0, _meshtastic_ModuleConfig_SerialConfig_Serial_Mode_MIN, 0}
+#define meshtastic_ModuleConfig_MAVLinkConfig_init_zero {0, 0, 0, _meshtastic_ModuleConfig_MAVLinkConfig_Serial_Baud_MIN, 0, 0, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}}
+#define meshtastic_ModuleConfig_MAVLinkConfig_MAVLink_Throttle_init_zero {0, 0, {0}}
 #define meshtastic_ModuleConfig_ExternalNotificationConfig_init_zero {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 #define meshtastic_ModuleConfig_StoreForwardConfig_init_zero {0, 0, 0, 0, 0, 0}
 #define meshtastic_ModuleConfig_RangeTestConfig_init_zero {0, 0, 0}
@@ -579,6 +643,18 @@ extern "C" {
 #define meshtastic_ModuleConfig_SerialConfig_timeout_tag 6
 #define meshtastic_ModuleConfig_SerialConfig_mode_tag 7
 #define meshtastic_ModuleConfig_SerialConfig_override_console_serial_port_tag 8
+#define meshtastic_ModuleConfig_MAVLinkConfig_enabled_tag 1
+#define meshtastic_ModuleConfig_MAVLinkConfig_rxd_tag 2
+#define meshtastic_ModuleConfig_MAVLinkConfig_txd_tag 3
+#define meshtastic_ModuleConfig_MAVLinkConfig_baud_tag 4
+#define meshtastic_ModuleConfig_MAVLinkConfig_timeout_tag 5
+#define meshtastic_ModuleConfig_MAVLinkConfig_override_console_serial_port_tag 6
+#define meshtastic_ModuleConfig_MAVLinkConfig_allow_list_tag 7
+#define meshtastic_ModuleConfig_MAVLinkConfig_block_list_tag 8
+#define meshtastic_ModuleConfig_MAVLinkConfig_throttle_list_tag 9
+#define meshtastic_ModuleConfig_MAVLinkConfig_MAVLink_Throttle_message_id_tag 1
+#define meshtastic_ModuleConfig_MAVLinkConfig_MAVLink_Throttle_every_tag 2
+#define meshtastic_ModuleConfig_MAVLinkConfig_MAVLink_Throttle_millis_tag 3
 #define meshtastic_ModuleConfig_ExternalNotificationConfig_enabled_tag 1
 #define meshtastic_ModuleConfig_ExternalNotificationConfig_output_ms_tag 2
 #define meshtastic_ModuleConfig_ExternalNotificationConfig_output_tag 3
@@ -651,6 +727,7 @@ extern "C" {
 #define meshtastic_ModuleConfig_ambient_lighting_tag 11
 #define meshtastic_ModuleConfig_detection_sensor_tag 12
 #define meshtastic_ModuleConfig_paxcounter_tag   13
+#define meshtastic_ModuleConfig_mav_config_tag   14
 
 /* Struct field encoding specification for nanopb */
 #define meshtastic_ModuleConfig_FIELDLIST(X, a) \
@@ -666,7 +743,8 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,remote_hardware,payload_vari
 X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,neighbor_info,payload_variant.neighbor_info),  10) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,ambient_lighting,payload_variant.ambient_lighting),  11) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,detection_sensor,payload_variant.detection_sensor),  12) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,paxcounter,payload_variant.paxcounter),  13)
+X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,paxcounter,payload_variant.paxcounter),  13) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,mav_config,payload_variant.mav_config),  14)
 #define meshtastic_ModuleConfig_CALLBACK NULL
 #define meshtastic_ModuleConfig_DEFAULT NULL
 #define meshtastic_ModuleConfig_payload_variant_mqtt_MSGTYPE meshtastic_ModuleConfig_MQTTConfig
@@ -682,6 +760,7 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,paxcounter,payload_variant.p
 #define meshtastic_ModuleConfig_payload_variant_ambient_lighting_MSGTYPE meshtastic_ModuleConfig_AmbientLightingConfig
 #define meshtastic_ModuleConfig_payload_variant_detection_sensor_MSGTYPE meshtastic_ModuleConfig_DetectionSensorConfig
 #define meshtastic_ModuleConfig_payload_variant_paxcounter_MSGTYPE meshtastic_ModuleConfig_PaxcounterConfig
+#define meshtastic_ModuleConfig_payload_variant_mav_config_MSGTYPE meshtastic_ModuleConfig_MAVLinkConfig
 
 #define meshtastic_ModuleConfig_MQTTConfig_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, BOOL,     enabled,           1) \
@@ -762,6 +841,27 @@ X(a, STATIC,   SINGULAR, UENUM,    mode,              7) \
 X(a, STATIC,   SINGULAR, BOOL,     override_console_serial_port,   8)
 #define meshtastic_ModuleConfig_SerialConfig_CALLBACK NULL
 #define meshtastic_ModuleConfig_SerialConfig_DEFAULT NULL
+
+#define meshtastic_ModuleConfig_MAVLinkConfig_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, BOOL,     enabled,           1) \
+X(a, STATIC,   SINGULAR, UINT32,   rxd,               2) \
+X(a, STATIC,   SINGULAR, UINT32,   txd,               3) \
+X(a, STATIC,   SINGULAR, UENUM,    baud,              4) \
+X(a, STATIC,   SINGULAR, UINT32,   timeout,           5) \
+X(a, STATIC,   SINGULAR, BOOL,     override_console_serial_port,   6) \
+X(a, CALLBACK, REPEATED, INT32,    allow_list,        7) \
+X(a, CALLBACK, REPEATED, INT32,    block_list,        8) \
+X(a, CALLBACK, REPEATED, MESSAGE,  throttle_list,     9)
+#define meshtastic_ModuleConfig_MAVLinkConfig_CALLBACK pb_default_field_callback
+#define meshtastic_ModuleConfig_MAVLinkConfig_DEFAULT NULL
+#define meshtastic_ModuleConfig_MAVLinkConfig_throttle_list_MSGTYPE meshtastic_ModuleConfig_MAVLinkConfig_MAVLink_Throttle
+
+#define meshtastic_ModuleConfig_MAVLinkConfig_MAVLink_Throttle_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   message_id,        1) \
+X(a, STATIC,   ONEOF,    UINT32,   (throttle,every,throttle.every),   2) \
+X(a, STATIC,   ONEOF,    UINT32,   (throttle,millis,throttle.millis),   3)
+#define meshtastic_ModuleConfig_MAVLinkConfig_MAVLink_Throttle_CALLBACK NULL
+#define meshtastic_ModuleConfig_MAVLinkConfig_MAVLink_Throttle_DEFAULT NULL
 
 #define meshtastic_ModuleConfig_ExternalNotificationConfig_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, BOOL,     enabled,           1) \
@@ -856,6 +956,8 @@ extern const pb_msgdesc_t meshtastic_ModuleConfig_DetectionSensorConfig_msg;
 extern const pb_msgdesc_t meshtastic_ModuleConfig_AudioConfig_msg;
 extern const pb_msgdesc_t meshtastic_ModuleConfig_PaxcounterConfig_msg;
 extern const pb_msgdesc_t meshtastic_ModuleConfig_SerialConfig_msg;
+extern const pb_msgdesc_t meshtastic_ModuleConfig_MAVLinkConfig_msg;
+extern const pb_msgdesc_t meshtastic_ModuleConfig_MAVLinkConfig_MAVLink_Throttle_msg;
 extern const pb_msgdesc_t meshtastic_ModuleConfig_ExternalNotificationConfig_msg;
 extern const pb_msgdesc_t meshtastic_ModuleConfig_StoreForwardConfig_msg;
 extern const pb_msgdesc_t meshtastic_ModuleConfig_RangeTestConfig_msg;
@@ -874,6 +976,8 @@ extern const pb_msgdesc_t meshtastic_RemoteHardwarePin_msg;
 #define meshtastic_ModuleConfig_AudioConfig_fields &meshtastic_ModuleConfig_AudioConfig_msg
 #define meshtastic_ModuleConfig_PaxcounterConfig_fields &meshtastic_ModuleConfig_PaxcounterConfig_msg
 #define meshtastic_ModuleConfig_SerialConfig_fields &meshtastic_ModuleConfig_SerialConfig_msg
+#define meshtastic_ModuleConfig_MAVLinkConfig_fields &meshtastic_ModuleConfig_MAVLinkConfig_msg
+#define meshtastic_ModuleConfig_MAVLinkConfig_MAVLink_Throttle_fields &meshtastic_ModuleConfig_MAVLinkConfig_MAVLink_Throttle_msg
 #define meshtastic_ModuleConfig_ExternalNotificationConfig_fields &meshtastic_ModuleConfig_ExternalNotificationConfig_msg
 #define meshtastic_ModuleConfig_StoreForwardConfig_fields &meshtastic_ModuleConfig_StoreForwardConfig_msg
 #define meshtastic_ModuleConfig_RangeTestConfig_fields &meshtastic_ModuleConfig_RangeTestConfig_msg
@@ -883,12 +987,15 @@ extern const pb_msgdesc_t meshtastic_RemoteHardwarePin_msg;
 #define meshtastic_RemoteHardwarePin_fields &meshtastic_RemoteHardwarePin_msg
 
 /* Maximum encoded size of messages (where known) */
-#define MESHTASTIC_MESHTASTIC_MODULE_CONFIG_PB_H_MAX_SIZE meshtastic_ModuleConfig_size
+/* meshtastic_ModuleConfig_size depends on runtime parameters */
+/* meshtastic_ModuleConfig_MAVLinkConfig_size depends on runtime parameters */
+#define MESHTASTIC_MESHTASTIC_MODULE_CONFIG_PB_H_MAX_SIZE meshtastic_ModuleConfig_MQTTConfig_size
 #define meshtastic_ModuleConfig_AmbientLightingConfig_size 14
 #define meshtastic_ModuleConfig_AudioConfig_size 19
 #define meshtastic_ModuleConfig_CannedMessageConfig_size 49
 #define meshtastic_ModuleConfig_DetectionSensorConfig_size 44
 #define meshtastic_ModuleConfig_ExternalNotificationConfig_size 42
+#define meshtastic_ModuleConfig_MAVLinkConfig_MAVLink_Throttle_size 12
 #define meshtastic_ModuleConfig_MQTTConfig_size  222
 #define meshtastic_ModuleConfig_MapReportSettings_size 12
 #define meshtastic_ModuleConfig_NeighborInfoConfig_size 10
@@ -898,7 +1005,6 @@ extern const pb_msgdesc_t meshtastic_RemoteHardwarePin_msg;
 #define meshtastic_ModuleConfig_SerialConfig_size 28
 #define meshtastic_ModuleConfig_StoreForwardConfig_size 24
 #define meshtastic_ModuleConfig_TelemetryConfig_size 46
-#define meshtastic_ModuleConfig_size             225
 #define meshtastic_RemoteHardwarePin_size        21
 
 #ifdef __cplusplus

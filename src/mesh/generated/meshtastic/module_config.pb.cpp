@@ -33,6 +33,12 @@ PB_BIND(meshtastic_ModuleConfig_PaxcounterConfig, meshtastic_ModuleConfig_Paxcou
 PB_BIND(meshtastic_ModuleConfig_SerialConfig, meshtastic_ModuleConfig_SerialConfig, AUTO)
 
 
+PB_BIND(meshtastic_ModuleConfig_MAVLinkConfig, meshtastic_ModuleConfig_MAVLinkConfig, AUTO)
+
+
+PB_BIND(meshtastic_ModuleConfig_MAVLinkConfig_MAVLink_Throttle, meshtastic_ModuleConfig_MAVLinkConfig_MAVLink_Throttle, AUTO)
+
+
 PB_BIND(meshtastic_ModuleConfig_ExternalNotificationConfig, meshtastic_ModuleConfig_ExternalNotificationConfig, AUTO)
 
 
@@ -52,6 +58,8 @@ PB_BIND(meshtastic_ModuleConfig_AmbientLightingConfig, meshtastic_ModuleConfig_A
 
 
 PB_BIND(meshtastic_RemoteHardwarePin, meshtastic_RemoteHardwarePin, AUTO)
+
+
 
 
 
